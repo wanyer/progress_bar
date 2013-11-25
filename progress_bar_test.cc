@@ -1,3 +1,7 @@
+//
+// Author: Xu Peilin (xpeilin@gmail.com)
+//
+
 #include "progress_bar.h"
 
 #include <stdio.h>

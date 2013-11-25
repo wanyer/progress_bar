@@ -1,5 +1,5 @@
-// Copyright (C) 2013, Baidu Inc.
-// Author: Xu Peilin (xupeilin@baidu.com)
+//
+// Author: Xu Peilin (xpeilin@gmail.com)
 //
 
 #include "progress_bar.h"

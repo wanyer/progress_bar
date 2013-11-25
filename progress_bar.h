@@ -1,7 +1,6 @@
-// Copyright (C) 2013, Baidu Inc.
-// Author: Xu Peilin (xupeilin@baidu.com)
 //
-// Description:
+// Author: Xu Peilin (xpeilin@gmail.com)
+//
 
 #ifndef  PROGRESS_BAR_H
 #define  PROGRESS_BAR_H
