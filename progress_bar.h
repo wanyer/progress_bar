@@ -28,10 +28,10 @@ class ProgressBar {
 public:
     ProgressBar(DisplayMode mode = BRIEF,
                 uint64_t total_size = 100,
+                uint32_t length = 0,
                 std::string unit = "B",
                 char ch1 = '>',
-                char ch2 = '-',
-                uint32_t length = 0);
+                char ch2 = '-');
     ~ProgressBar();
 
     void Refresh(int32_t cur_size);
@@ -50,7 +50,6 @@ private:
     char m_char_2;
     char *m_flush_buffer;
     int32_t m_bar_length;
-    int32_t m_cur_size;
     int64_t m_total_size;
     std::string m_unit;
 };

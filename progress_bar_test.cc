@@ -8,13 +8,17 @@
 #include <stdlib.h>
 
 int main(int argc, char* argv[]) {
-    utils::ProgressBar progress_bar(utils::ENHANCED, 10000000);
-    srand((uint32_t)time(NULL));
     int cur_size = 0;
-    for (int i = 0; i <= 100; ++i) {
+    int total_size = 100000000;
+
+    utils::ProgressBar progress_bar(utils::ENHANCED, total_size, 100);
+
+    srand((uint32_t)time(NULL));
+    timespec interval = {0, 1000};
+    while (cur_size < total_size) {
+        cur_size += rand() % 1000;
         progress_bar.Refresh(cur_size);
-        cur_size += rand() % 1000000;
-        sleep(1);
+        nanosleep(&interval, &interval);
     }
     return 0;
 }

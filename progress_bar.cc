@@ -10,18 +10,17 @@ namespace utils {
 
 ProgressBar::ProgressBar(DisplayMode mode,
                          uint64_t total_size,
+                         uint32_t length,
                          std::string unit,
                          char ch1,
-                         char ch2,
-                         uint32_t length)
+                         char ch2)
     : m_mode(mode),
       m_total_size(total_size),
       m_unit(unit),
       m_char_1(ch1),
       m_char_2(ch2),
       m_bar_length(length),
-      m_start_time(0),
-      m_cur_size(-1) {
+      m_start_time(0) {
     if (m_bar_length <= 0) {
         if (m_mode == BRIEF) {
             m_bar_length = 80;
@@ -44,16 +43,16 @@ void ProgressBar::Refresh(int32_t cur_size) {
         cur_size = 0;
     }
 
-    if (cur_size == m_cur_size && m_cur_time == time(NULL)) {
+    if (m_cur_time == time(NULL) && cur_size != m_total_size) {
         fflush(NULL);
         return;
     }
+    m_cur_time = time(NULL);
 
     if (m_start_time == 0) {
         m_start_time = time(NULL);
         m_cur_time = m_start_time;
     }
-    m_cur_size = cur_size;
     for (int32_t i = 0; i < m_bar_length; ++i) {
         putchar('\b');
     }
@@ -101,7 +100,7 @@ void ProgressBar::FillFlushBufferEnhanced(int64_t cur_size) {
     double disp_size = (double)cur_size / time_s;
     if (disp_size >= 1024 * 1024) {
         unit = "M" + m_unit;
-        disp_size = disp_size / 1024 * 1024;
+        disp_size = disp_size / (1024 * 1024);
     } else if (disp_size >= 1024) {
         unit = "K" + m_unit;
         disp_size = disp_size / 1024;
