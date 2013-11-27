@@ -16,23 +16,23 @@ ProgressBar::ProgressBar(DisplayMode mode,
                          char ch2)
     : m_mode(mode),
       m_total_size(total_size),
+      m_cur_size(0),
+      m_bar_length(length),
       m_unit(unit),
       m_char_1(ch1),
       m_char_2(ch2),
-      m_bar_length(length),
       m_start_time(0) {
     if (m_bar_length <= 0) {
         if (m_mode == BRIEF) {
             m_bar_length = 80;
         } else {
-            m_bar_length = GetScreenWidth();
+            m_bar_length = GetScreenWidth() - 5;
         }
     }
     m_flush_buffer = new char[m_bar_length];
 }
 
 ProgressBar::~ProgressBar() {
-    putchar('\n');
     delete[] m_flush_buffer;
 }
 
@@ -42,14 +42,15 @@ void ProgressBar::Refresh(int32_t cur_size) {
     } else if (cur_size < 0) {
         cur_size = 0;
     }
+    m_cur_size = cur_size;
 
     if (m_cur_time == time(NULL) && cur_size != m_total_size) {
-        fflush(NULL);
         return;
     }
     m_cur_time = time(NULL);
 
     if (m_start_time == 0) {
+        fflush(NULL);
         m_start_time = time(NULL);
         m_cur_time = m_start_time;
     }
@@ -61,8 +62,18 @@ void ProgressBar::Refresh(int32_t cur_size) {
     } else if (m_mode == ENHANCED) {
         FillFlushBufferEnhanced(cur_size);
     }
-    fwrite(m_flush_buffer, m_bar_length, 1, stdout);
+    fwrite(m_flush_buffer, 1, m_bar_length, stdout);
     fflush(stdout);
+}
+
+void ProgressBar::Add(int32_t size) {
+    m_cur_size += size;
+    Refresh(m_cur_size);
+}
+
+void ProgressBar::Done() {
+    m_cur_size = 0;
+    putchar('\n');
 }
 
 void ProgressBar::FillFlushBufferBrief(int64_t cur_size) {
@@ -91,10 +102,11 @@ void ProgressBar::FillFlushBufferEnhanced(int64_t cur_size) {
     }
     disp_len = 9;
     bar_remain -= disp_len;
-    snprintf(m_flush_buffer + bar_remain, disp_len,  "%02d:%02d:%02d",
+    snprintf(m_flush_buffer + bar_remain, disp_len,  "%02d:%02d:%02d ",
              time_s / 3600,
              time_s % 3600 / 60,
              time_s % 60);
+    m_flush_buffer[bar_remain + disp_len - 1] = ' ';
 
     // fill speed field
     double disp_size = (double)cur_size / time_s;
@@ -107,10 +119,11 @@ void ProgressBar::FillFlushBufferEnhanced(int64_t cur_size) {
     } else {
         unit = m_unit;
     }
-    disp_len = 10 + unit.length();
+    disp_len = 9 + unit.length();
     bar_remain -= disp_len;
     snprintf(m_flush_buffer + bar_remain, 6, "%5.3f", disp_size);
-    snprintf(m_flush_buffer + bar_remain + 5, disp_len - 5, "%s/s  ", disp_size, unit.c_str());
+    snprintf(m_flush_buffer + bar_remain + 5, disp_len - 5, "%s/s  ", unit.c_str());
+    m_flush_buffer[bar_remain + disp_len - 1] = ' ';
 
     // fill cur_size field
     if (cur_size >= 1024 * 1024 * 1024) {
@@ -126,16 +139,18 @@ void ProgressBar::FillFlushBufferEnhanced(int64_t cur_size) {
         unit = m_unit;
         disp_size = cur_size;
     }
-    disp_len = 10 + unit.length();
+    disp_len = 7 + unit.length();
     bar_remain -= disp_len;
     snprintf(m_flush_buffer + bar_remain, 6,  "%5.3f",  disp_size);
-    snprintf(m_flush_buffer + bar_remain + 5, disp_len - 5, "%s  ", disp_size, unit.c_str());
+    snprintf(m_flush_buffer + bar_remain + 5, disp_len - 5, "%s  ", unit.c_str());
+    m_flush_buffer[bar_remain + disp_len - 1] = ' ';
 
     // fill percent field
-    disp_len = 8;
+    disp_len = 7;
     bar_remain -= disp_len;
     int32_t percent = cur_size * 100 / m_total_size;
     snprintf(m_flush_buffer + bar_remain, disp_len,  " %3d%%  ", percent);
+    m_flush_buffer[bar_remain + disp_len - 1] = ' ';
 
     // file process bar
     int32_t char_1_num = percent * bar_remain / 100;

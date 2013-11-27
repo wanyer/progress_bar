@@ -35,6 +35,12 @@ public:
     ~ProgressBar();
 
     void Refresh(int32_t cur_size);
+    void Add(int32_t size);
+    void Done();
+
+    int32_t GetPercent() {
+        return (int32_t)(m_cur_size * 100 / m_total_size);
+    }
 
 private:
     void FillFlushBufferBrief(int64_t cur_size);
@@ -44,14 +50,16 @@ private:
 
 private:
     DisplayMode m_mode;
-    time_t m_start_time;
-    time_t m_cur_time;
+    int64_t m_total_size;
+    int64_t m_cur_size;
+    int32_t m_bar_length;
+    std::string m_unit;
     char m_char_1;
     char m_char_2;
+
+    time_t m_start_time;
+    time_t m_cur_time;
     char *m_flush_buffer;
-    int32_t m_bar_length;
-    int64_t m_total_size;
-    std::string m_unit;
 };
 
 } // namespace utils

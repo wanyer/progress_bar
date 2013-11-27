@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
     int cur_size = 0;
     int total_size = 100000000;
 
-    utils::ProgressBar progress_bar(utils::ENHANCED, total_size, 100);
+    utils::ProgressBar progress_bar(utils::ENHANCED, total_size);
 
     srand((uint32_t)time(NULL));
     timespec interval = {0, 1000};
@@ -20,5 +20,6 @@ int main(int argc, char* argv[]) {
         progress_bar.Refresh(cur_size);
         nanosleep(&interval, &interval);
     }
+    progress_bar.Done();
     return 0;
 }
